@@ -1,3 +1,4 @@
+const { request } = require('express');
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 
@@ -58,6 +59,20 @@ app.get('/statement', verifyIfCpfExists, (request, response) => {
   return response.json(customer.statement);
 });
 
+app.get('/statement/date', verifyIfCpfExists, (request, response) => {
+  const { customer } = request;
+  const { date } = request.query;
+  
+  const dateFormat = new Date(date + " 00:00");
+
+  const statement = customer.statement.filter(
+    (statements) => 
+      statements.createdAt.toDateString() === new Date(dateFormat).toDateString()
+  )
+
+  return response.json(statement);
+})
+
 app.post('/deposit', verifyIfCpfExists, (request, response) => {
   const { description, amount } = request.body;
   const { customer } = request;
@@ -92,7 +107,6 @@ app.post('/withdraw', verifyIfCpfExists, (request, response) => {
   }
 
   customer.statement.push(statementOperation);
-
   return response.status(201).send();
 })
 
