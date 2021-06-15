@@ -61,13 +61,21 @@ app.put('/account', verifyIfCpfExists, (request, response) => {
   customer.name = name;
 
   return response.status(201).send();
-})
+});
 
 app.get('/account', verifyIfCpfExists, (request, response) => {
   const { customer } = request;
 
   return response.status(200).json(customer);
-})
+});
+
+app.delete('/account', verifyIfCpfExists, (request, response) => {
+  const { customer } = request;
+
+  customers.splice(customer, 1);
+
+  return response.status(204).send();
+});
 
 app.get('/statement', verifyIfCpfExists, (request, response) => {
   const { customer } = request;
@@ -86,7 +94,7 @@ app.get('/statement/date', verifyIfCpfExists, (request, response) => {
   )
 
   return response.json(statement);
-})
+});
 
 app.post('/deposit', verifyIfCpfExists, (request, response) => {
   const { description, amount } = request.body;
@@ -123,6 +131,15 @@ app.post('/withdraw', verifyIfCpfExists, (request, response) => {
 
   customer.statement.push(statementOperation);
   return response.status(201).send();
+});
+
+app.get('/balance', verifyIfCpfExists, (request, response) => {
+  const { customer } = request;
+  const balance = getBalance(customer.statement);
+
+  return response.status(200).json({
+    balance,
+  });
 })
 
 app.listen(3333);
